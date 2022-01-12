@@ -44,6 +44,7 @@ class JustAudioBackground {
     bool androidStopForegroundOnPause = true,
     int? artDownscaleWidth,
     int? artDownscaleHeight,
+    bool darwinShowSkipButtons = false,
     Duration fastForwardInterval = const Duration(seconds: 10),
     Duration rewindInterval = const Duration(seconds: 10),
     bool preloadArtwork = false,
@@ -65,6 +66,7 @@ class JustAudioBackground {
       androidStopForegroundOnPause: androidStopForegroundOnPause,
       artDownscaleWidth: artDownscaleWidth,
       artDownscaleHeight: artDownscaleHeight,
+      darwinShowSkipButtons: darwinShowSkipButtons,
       fastForwardInterval: fastForwardInterval,
       rewindInterval: rewindInterval,
       preloadArtwork: preloadArtwork,
@@ -87,6 +89,7 @@ class _JustAudioBackgroundPlugin extends JustAudioPlatform {
     bool androidStopForegroundOnPause = true,
     int? artDownscaleWidth,
     int? artDownscaleHeight,
+    bool darwinShowSkipButtons = false,
     Duration fastForwardInterval = const Duration(seconds: 10),
     Duration rewindInterval = const Duration(seconds: 10),
     bool preloadArtwork = false,
@@ -111,6 +114,7 @@ class _JustAudioBackgroundPlugin extends JustAudioPlatform {
         androidStopForegroundOnPause: androidStopForegroundOnPause,
         artDownscaleWidth: artDownscaleWidth,
         artDownscaleHeight: artDownscaleHeight,
+        darwinShowSkipButtons: darwinShowSkipButtons,
         fastForwardInterval: fastForwardInterval,
         rewindInterval: rewindInterval,
         preloadArtwork: preloadArtwork,
@@ -693,11 +697,22 @@ class _PlayerAudioHandler extends BaseAudioHandler
 
   /// Broadcasts the current state to all clients.
   Future<void> _broadcastState() async {
+    final backControls = [
+      if (AudioService.config.darwinShowSkipButtons)
+        MediaControl.rewind
+      else if (hasPrevious)
+        MediaControl.skipToPrevious,
+    ];
+
+    final forwardControls = [
+      if (AudioService.config.darwinShowSkipButtons) MediaControl.fastForward else if (hasNext) MediaControl.skipToNext,
+    ];
+
     final controls = [
-      if (hasPrevious) MediaControl.skipToPrevious,
+      ...backControls,
       if (_playing) MediaControl.pause else MediaControl.play,
       MediaControl.stop,
-      if (hasNext) MediaControl.skipToNext,
+      ...forwardControls,
     ];
     playbackState.add(playbackState.nvalue!.copyWith(
       controls: controls,
