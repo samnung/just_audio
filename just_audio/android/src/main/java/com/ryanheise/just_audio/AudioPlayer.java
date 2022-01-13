@@ -462,6 +462,9 @@ public class AudioPlayer implements MethodCallHandler, Player.Listener, Metadata
             case "setPreferredPeakBitRate":
                 result.success(new HashMap<String, Object>());
                 break;
+            case "setAllowsExternalPlayback":
+                result.success(new HashMap<String, Object>());
+                break;
             case "seek":
                 Long position = getLong(call.argument("position"));
                 Integer index = call.argument("index");
